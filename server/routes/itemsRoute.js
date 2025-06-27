@@ -8,6 +8,7 @@ const itemsModel = require("../models/itemsModel");
 router.get("/", async (req, res) => {
   try {
     const items = await itemsModel.find();
+    console.log(items)
     res.send({
       success: true,
       message: items,
