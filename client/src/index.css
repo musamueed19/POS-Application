@@ -5,9 +5,10 @@
 
 
 body {
-  font-family: "Bricolage Grotesque", serif;
+  font-family: "Bricolage Grotesque", "Montserrat", serif;
   min-height: 100vh;
   height: fit-content;
+  box-sizing: border-box;
 }
 
 .main-layout, full-layout {
@@ -34,3 +35,8 @@ body {
 .menu li {
   font-size: 18px;
 }
+
+.item-img img {
+  height: 100%;
+}
+
