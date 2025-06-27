@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MenuFoldOutlined,
   HomeOutlined,
@@ -6,17 +6,19 @@ import {
   UserOutlined,
   UnorderedListOutlined,
   PrinterOutlined,
+  ShoppingOutlined,
   LogoutOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
 const { Header, Sider, Content } = Layout;
 
 // Link
 import { Link } from "react-router-dom";
-
+import { useSelector } from "react-redux";
 
 // menuItems <Array>
-const size=24
+const size = 24;
 const menuItems = [
   {
     key: "/home",
@@ -41,10 +43,9 @@ const menuItems = [
   {
     key: "/logout",
     icon: <LogoutOutlined size={size} />,
-    label: <Link to={"/"}>Logout</Link>,
+    label: <Link to={"/logout"}>Logout</Link>,
   },
 ];
-
 
 // component
 const DefaultLayout = ({ children }) => {
@@ -52,6 +53,17 @@ const DefaultLayout = ({ children }) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+
+  // getting, cartItems, from the rootReducer, and localStorage
+  const { cartItems } = useSelector(state => state.rootReducer)
+  
+  // add/update cartItems in the localStorage too, when changed in the cartItems Redux state
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems))
+  }, [cartItems])
+
+
   return (
     <Layout
       style={{
@@ -77,16 +89,28 @@ const DefaultLayout = ({ children }) => {
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: "16px",
-              width: 64,
-              height: 64,
-            }}
-          />
+          {/* parent div container */}
+          <div className="flex justify-between items-center pr-4">
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{
+                fontSize: "20px",
+                width: 64,
+                height: 64,
+              }}
+            />
+
+            {/* Cart Icon */}
+            <button className="text-3xl cursor-pointer flex items-center justify-between relative active:bg-gray-200/80 p-1 rounded-md text-gray-600">
+              <ShoppingOutlined />
+              {/* <span className="text-sm fixed top-4 right-6 font-medium text-white bg-red-600 rounded-md w-[25px]">2</span> */}
+              <span className="flex items-center justify-center text-[12px] bg-red-600 text-white font-medium w-[1.2rem] h-[1.2rem] rounded-full fixed right-3.5 top-4.5">
+              {cartItems.length}
+              </span>
+            </button>
+          </div>
         </Header>
         <Content
           style={{

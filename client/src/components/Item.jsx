@@ -1,10 +1,26 @@
 import React from "react";
 
 // antd icons, plus
-import { PlusOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { PlusOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+// import { Button } from "antd";
+
+
+
 const Item = ({ item }) => {
+
+  // dispatch, redux function
+  const dispatch = useDispatch();
+
   const { name, price, category, image } = item;
+
+
+  // addToCartHandler function
+  function addToCartHandler() {
+    dispatch({type: 'addToCart', payload: item})
+  }
+
+
   return (
     <div className="h-full flex flex-col justify-between border p-2 md:px-3 border-gray-300 rounded-md shadow-[#b7b4b4] shadow-md">
       {/* name, category */}
@@ -22,14 +38,13 @@ const Item = ({ item }) => {
 
       {/* price, add to cart */}
       <div className="flex w-full justify-between items-center">
-
-      <h4 className="text-xl md:text-2xl font-medium text-gray-500">
-        {" "}
-        Rs. {price}
-      </h4>
-      <Button type="default">
-        <PlusOutlined /> Cart
-      </Button>
+        <h4 className="text-xl md:text-2xl font-medium text-gray-500">
+          {" "}
+          Rs. {price}
+        </h4>
+        <button className="text-xl font-normal cursor-pointer flex items-center gap-x-1 bg-[#2da6ec] hover:bg-[#0b86cd] text-white px-2 py-0.5 rounded-md active:ring-4 active:ring-green-200" onClick={() => addToCartHandler()}>
+          <PlusOutlined /> <span className="text-xl">Cart</span>
+        </button>
       </div>
     </div>
   );
