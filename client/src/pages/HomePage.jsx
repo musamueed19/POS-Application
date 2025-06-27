@@ -1,9 +1,14 @@
-import React from 'react'
+import React from "react";
+import DefaultLayout from "../components/DefaultLayout";
 
 const HomePage = () => {
   return (
-    <div>HomePage is ours</div>
-  )
-}
+    <div>
+      <DefaultLayout>
+        <h1>HomePage</h1>
+      </DefaultLayout>
+    </div>
+  );
+};
 
-export default HomePage
+export default HomePage;

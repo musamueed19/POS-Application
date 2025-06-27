@@ -1,0 +1,18 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "POS Server",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+
+    
+  },
+  "author": "Muhammad Musa Mueed",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.16.1",
+    "nodemon": "^3.1.10"
+  }
+}
