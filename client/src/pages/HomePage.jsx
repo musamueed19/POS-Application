@@ -9,7 +9,7 @@ const HomePage = () => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/v0/items`)
       .then((res) => {
-        console.log(res);
+        console.log(res?.data);
       })
       .catch((err) => {
         console.log(error);

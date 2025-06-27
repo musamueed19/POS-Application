@@ -22,11 +22,14 @@ const port = process.env.PORT || 5000;
 
 // CORS
 // Enable CORS for all routes
-app.use(cors({
-  origin: ['*', 'https://igpos.vercel.app'], // Allow all origins (replace with your frontend URL in production)
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    // Allow all origins (replace with your frontend URL in production)
+    origin: ['*', "https://igpos.vercel.app", "http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 
 app.get("/", (req, res) => {
