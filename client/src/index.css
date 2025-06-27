@@ -24,8 +24,13 @@ body {
 
 
 .ant-menu-item-selected {
+  background-color: #28c6ff;
 
 }
 .logo {
   
+}
+
+.menu li {
+  font-size: 18px;
 }
