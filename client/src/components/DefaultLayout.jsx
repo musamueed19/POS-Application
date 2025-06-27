@@ -1,25 +1,43 @@
 import React, { useState } from "react";
 import {
   MenuFoldOutlined,
+  HomeOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
   UserOutlined,
+  UnorderedListOutlined,
   VideoCameraOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
 const { Header, Sider, Content } = Layout;
+
+
+// Link
+import {Link} from "react-router-dom"
+
+
+
+// component
 const DefaultLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
-
-  // function to get theme
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   return (
-    <Layout id="full-layout">
-      {/* Sidebar Section */}
+    <Layout
+      style={{
+        minHeight: "100vh",
+      }}
+    >
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="h-full" />
+        <div className="demo-logo-vertical" />
+        <h1
+          className={`${
+            collapsed ? "text-xl" : "text-4xl"
+          } text-[#28a5ff] transition-all font-bold text-center mt-[1rem] mb-[3rem]`}
+        >
+          IG <span>POS</span>
+        </h1>
         <Menu
           theme="dark"
           mode="inline"
@@ -27,36 +45,37 @@ const DefaultLayout = ({ children }) => {
           items={[
             {
               key: "1",
-              icon: <UserOutlined />,
-              label: "nav 1",
+              icon: <HomeOutlined />,
+              label: "Home",
             },
             {
               key: "2",
               icon: <VideoCameraOutlined />,
-              label: "nav 2",
+              label: "Bills",
+            },
+            {
+              key: "1",
+              icon: <UnorderedListOutlined />,
+              label: "Items",
+            },
+            {
+              key: "1",
+              icon: <UserOutlined />,
+              label: "Customers",
             },
             {
               key: "3",
-              icon: <UploadOutlined />,
-              label: "nav 3",
+              icon: <LogoutOutlined />,
+              label: "Logout",
             },
           ]}
         />
       </Sider>
-
-      {/* Main Area */}
-      <Layout id="main-layout">
-        {/* Header */}
+      <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
           <Button
             type="text"
-            icon={
-              collapsed ? (
-                <MenuUnfoldOutlined color="white" />
-              ) : (
-                <MenuFoldOutlined color="white" />
-              )
-            }
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
             style={{
               fontSize: "16px",
@@ -65,11 +84,11 @@ const DefaultLayout = ({ children }) => {
             }}
           />
         </Header>
-
-        {/* Main Body */}
         <Content
-          id="main-content"
           style={{
+            margin: "10px 0 0 10px",
+            padding: 24,
+            minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}
