@@ -7,16 +7,27 @@ const env = require("dotenv");
 env.config();
 
 // MongoDB connect
-const { connect } = require("./db/connect");
+const connect = require("./db/connect");
 connect();
 
+
+// items route
+const itemsRoute = require('./routes/itemsRoute')
 
 // start express app
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  res.send("Hello, WOrld");
+  res.send("Hello, World");
 });
+
+// express.json() - to accept the parmeters from the frontend
+app.use(express.json())
+
+// items route config
+app.use('/api/v0/items', itemsRoute)
+
+
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

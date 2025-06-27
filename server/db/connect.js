@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 async function connect() {
   await mongoose
     .connect(process.env.MONGOURI)
-    .then((res) => console.log('SUCCESS --- ' + res))
-    .catch((err) => console.log('ERROR --- ' + err));
+    .then((res) => console.log("SUCCESS --- " + res))
+    .catch((err) => console.log("ERROR --- " + err));
 }
 
-module.exports = { connect };
+module.exports = connect;
