@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // pages
 import HomePage from "./pages/HomePage";
+import Login from "./pages/Login";
 import Items from "./pages/Items";
 import Bills from "./pages/Bills";
 import Customers from "./pages/Customers";
@@ -17,7 +18,7 @@ function App() {
       <BrowserRouter>
         <DefaultLayout>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<Login />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/items" element={<Items />} />
             <Route path="/bills" element={<Bills />} />
