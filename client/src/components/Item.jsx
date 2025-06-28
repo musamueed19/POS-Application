@@ -1,25 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 
 // antd icons, plus
 import { PlusOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 // import { Button } from "antd";
 
 
 
 const Item = ({ item }) => {
-
   // dispatch, redux function
   const dispatch = useDispatch();
 
+  //// getting, cartItems, from the rootReducer, and localStorage
+  const { cartItems } = useSelector((state) => state.rootReducer);
+
   const { name, price, category, image } = item;
 
+  // isInCart State
+  const [isInCart, setIsInCart] = useState(false);
 
   // addToCartHandler function
   function addToCartHandler() {
-    dispatch({type: 'addToCart', payload: item})
-  }
+    const isFound = cartItems.some((element) => element._id === item._id);
 
+    if (!isFound) {
+      dispatch({ type: "addToCart", payload: {...item, quantity:1} });
+    }
+    setIsInCart(true);
+  }
 
   return (
     <div className="h-full flex flex-col justify-between border p-2 md:px-3 border-gray-300 rounded-md shadow-[#b7b4b4] shadow-md">
@@ -42,8 +50,17 @@ const Item = ({ item }) => {
           {" "}
           Rs. {price}
         </h4>
-        <button className="text-xl font-normal cursor-pointer flex items-center gap-x-1 bg-[#2da6ec] hover:bg-[#0b86cd] text-white px-2 py-0.5 rounded-md active:ring-4 active:ring-green-200" onClick={() => addToCartHandler()}>
-          <PlusOutlined /> <span className="text-xl">Cart</span>
+        <button
+          className="text-xl font-normal cursor-pointer flex items-center gap-x-1 bg-[#2da6ec] hover:bg-[#0b86cd] text-white px-2 py-0.5 rounded-md active:ring-4 active:ring-green-200"
+          onClick={() => addToCartHandler()}
+        >
+          {!isInCart ? (
+            <>
+              <PlusOutlined /> <span className="text-xl">Cart</span>
+            </>
+          ) : (
+            <span className="text-xl">Already in Cart</span>
+          )}
         </button>
       </div>
     </div>

@@ -14,7 +14,7 @@ import { Button, Layout, Menu, theme } from "antd";
 const { Header, Sider, Content } = Layout;
 
 // Link
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 // menuItems <Array>
@@ -54,6 +54,9 @@ const DefaultLayout = ({ children }) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+
+  // useNavigate
+  const navigate = useNavigate()
 
   // getting, cartItems, from the rootReducer, and localStorage
   const { cartItems } = useSelector(state => state.rootReducer)
@@ -103,10 +106,10 @@ const DefaultLayout = ({ children }) => {
             />
 
             {/* Cart Icon */}
-            <button className="text-3xl cursor-pointer flex items-center justify-between relative active:bg-gray-200/80 p-1 rounded-md text-gray-600">
+            <button onClick={() => navigate('/cart')} className="text-3xl cursor-pointer flex items-center justify-between relative active:bg-gray-200/80 p-1 rounded-md text-gray-600">
               <ShoppingOutlined />
               {/* <span className="text-sm fixed top-4 right-6 font-medium text-white bg-red-600 rounded-md w-[25px]">2</span> */}
-              <span className="flex items-center justify-center text-[12px] bg-red-600 text-white font-medium w-[1.2rem] h-[1.2rem] rounded-full fixed right-3.5 top-4.5">
+              <span className="flex items-center justify-center text-[12px] bg-red-600 text-white font-medium w-[1.2rem] h-[1.2rem] rounded-full absolute top-1 -right-0.5">
               {cartItems.length}
               </span>
             </button>
