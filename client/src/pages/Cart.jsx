@@ -1,6 +1,6 @@
 import React from "react";
 import { Divider, Space, Table, Tag } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 const { Column, ColumnGroup } = Table;
 
 // import antdicon
@@ -19,6 +19,23 @@ const Cart = () => {
 
   // counter
   let i = 1;
+
+  // useDispatch instance
+  const dispatch = useDispatch()
+
+
+  // increaseQuantity
+  function increaseQuantity(record) {
+    dispatch({ type: "updateQuantity", payload: { ...record, quantity: record.quantity + 1 } });
+  }
+
+  // decreaseQuantity
+  function decreaseQuantity(record) {
+    dispatch({ type: "updateQuantity", payload: { ...record, quantity: record.quantity - 1 } });
+  }
+
+  // deleteFromCart
+
 
   return (
     <Table dataSource={cartItems} rowKey={() => i++} bordered>
@@ -43,9 +60,15 @@ const Cart = () => {
         dataIndex={"_id"}
         render={(id, record) => (
           <div className="text-xl space-x-2 text-gray-500">
-            <MinusCircleOutlined className="cursor-pointer" />
-            <span className="font-bold text-gray-600">{record.quantity || 0}</span>
-            <PlusCircleOutlined className="cursor-pointer" />
+            <MinusCircleOutlined
+              className="cursor-pointer"
+              onClick={() => decreaseQuantity(record)}
+            />
+            <span className="font-bold text-gray-600">{record.quantity}</span>
+            <PlusCircleOutlined
+              className="cursor-pointer"
+              onClick={() => increaseQuantity(record)}
+            />
           </div>
         )}
       />
@@ -54,7 +77,7 @@ const Cart = () => {
         dataIndex={"_id"}
         render={(id, record) => (
           <button className="text-xl cursor-pointer text-red-600 active:bg-red-100 p-1 px-2 rounded-md">
-            <DeleteOutlined />
+            <DeleteOutlined onClick={() => dispatch({type:"deleteFromCart", payload: record['_id']})} />
           </button>
         )}
       />
