@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 
 import axios from "axios";
-import { Col, Form, Modal, Row } from "antd";
+import { Col, Form, message, Modal, Row } from "antd";
 import Item from "../components/Item";
 import Loader from "../components/Loader";
 
@@ -39,19 +39,28 @@ import {
 // cartItems<Array> of CartItem
 // CartItem {name, image, price, category}
 
-
 // Form related imports & data
-const { RangePicker } = DatePicker;
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 6 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 14 },
-  },
-};
+const categoryOptions = [
+  { value: "dairy", label: "Dairy" },
+  { value: "grains", label: "Grains" },
+  { value: "food", label: "Food" },
+  { value: "cereal", label: "Cereal" },
+  { value: "candies", label: "Candies" },
+  { value: "drinks", label: "Drinks" },
+  { value: "fruit", label: "Fruit" },
+  { value: "vegetables", label: "Vegetables" },
+  { value: "accessories", label: "Accessories" },
+  { value: "kitchen", label: "Kitchen" },
+];
+
+const unitWeightOptions = [
+  { value: "gram", label: "Gram" },
+  { value: "kg", label: "Kg" },
+  { value: "litre", label: "Litre" },
+  { value: "dozen", label: "Dozen" },
+  { value: "ounce", label: "Ounce" },
+  { value: "pound", label: "Pound" },
+];
 
 const Items = () => {
   const [data, setData] = useState([]);
@@ -61,19 +70,24 @@ const Items = () => {
   // modal state
   const [modal, setModal] = useState(false);
 
-  // counter
-  // let i = 0;
+  // modal type
+  const [modalType, setModalType] = useState(null);
+  // store ImageURL
+  const [imageUrl, setImageUrl] = useState(null);
 
+  // counter
+  let i = 0;
 
   // Form related fields
-  
-  const [form] = Form.useForm();
-  const variant = Form.useWatch("variant", form);
 
   function getAllItems() {
     setIsLoading(true);
     axios
-      .get(`${import.meta.env.VITE_API_URL}/api/v0/items`)
+      .get(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/v0/items?status=active,inactive,draft`
+      )
       .then((res) => {
         setData(res?.data?.message);
         setError("");
@@ -92,6 +106,28 @@ const Items = () => {
     getAllItems();
   }, []);
 
+  function onFinish(values) {
+    console.log({
+      ...values,
+      updatedBy: "admin",
+    });
+    axios
+      .post(`${import.meta.env.VITE_API_URL}/api/v0/items`, {
+        ...values,
+        updatedBy: "admin",
+      })
+      .then((res) => {
+        getAllItems();
+        message.success(res?.data?.message);
+        setModal(false);
+      })
+      .catch((err) => {
+        message.error(
+          err.response?.data?.message || err.message || "Failed to fetch items"
+        );
+      });
+  }
+
   if (isLoading) return <Loader />;
 
   return (
@@ -103,7 +139,10 @@ const Items = () => {
 
         {/* add item button */}
         <button
-          onClick={() => setModal(true)}
+          onClick={() => {
+            setModal(true);
+            setModalType("addItem");
+          }}
           className="font-semibold text-lg text-white bg-blue-500 px-2 py-1 rounded-md space-x-1 cursor-pointer hover:bg-blue-600/90 active:ring-4 active:ring-blue-200"
         >
           <PlusOutlined />
@@ -114,27 +153,23 @@ const Items = () => {
       {/* items table */}
       <Table
         dataSource={data}
-        rowKey={() => {
-          let i = 0;
-          return i++;
-        }}
+        rowKey={(record) => record._id} // Use actual unique ID from your data
         bordered
         className="capitalize"
       >
-        <Column
-          title="Sr."
-          render={() => {
-            let i = 0;
-            return i++;
-          }}
-        />
+        <Column title="Sr." render={(text, record, index) => index++ + 1} />
         <Column title="Name" dataIndex={"name"} />
         <Column
           title="Image"
           dataIndex={"image"}
           render={(image, record) => (
             <img
-              className="rounded-md object-cover"
+              onClick={() => {
+                setModal(true);
+                setModalType("viewImage");
+                setImageUrl(image);
+              }}
+              className="rounded-md object-cover cursor-pointer"
               src={image}
               alt={record.name + "img"}
               height={"100"}
@@ -142,8 +177,30 @@ const Items = () => {
             />
           )}
         />
-        <Column title="Category" dataIndex={"category"} sorter />
-        <Column title="Unit Price" dataIndex={"price"} />
+        <Column
+          title="Category"
+          dataIndex={"category"}
+          sorter={(a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          } // Optional: keep sorting by category
+        />
+        <Column
+          title="Unit Price"
+          render={(record) => `${record.price} /${record.unitWeight}`}
+          sorter={(a, b) => a.price - b.price} // Optional: keep sorting by price
+        />
+        <Column
+          title="Quantity"
+          dataIndex={"quantity"}
+          sorter={(a, b) => a.quantity - b.quantity} // Optional: keep sorting by quantity
+        />
+        <Column
+          title="Status"
+          dataIndex={"status"}
+          sorter={(a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          } // Optional: keep sorting by status
+        />
         <Column
           title="Action"
           dataIndex={"_id"}
@@ -161,66 +218,121 @@ const Items = () => {
       </Table>
 
       {/* Modal */}
-      <Modal onCancel={() => setModal(false)} visible={modal} footer={false}>
-        <Form
-          layout="vertical"
-          form={form}
-          style={{ maxWidth: 500 }}
-          initialValues={{ variant: "filled" }}
-        >
-          <Form.Item wrapperCol={{ span: 24 }}>
-            <div className="text-center mt-4">
-              <h1 className="text-blue-500 font-bold text-3xl">Add New Item</h1>
+      <Modal
+        onCancel={() => setModal(false)}
+        open={modal}
+        footer={false}
+        width={modalType === "viewImage" ? "60%" : undefined}
+        style={{
+          padding: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <>
+          {modalType === "viewImage" && (
+            <div style={{ width: "100%", height: "100%" }}>
+              <img
+                className="rounded-md object-contain max-w-full max-h-full"
+                src={imageUrl}
+                alt={"item img"}
+                style={{
+                  display: "block",
+                  margin: "0 auto",
+                }}
+              />
             </div>
-          </Form.Item>
+          )}
+          {modalType === "addItem" && (
+            <Form layout="vertical" onFinish={onFinish}>
+              <Form.Item wrapperCol={{ span: 24 }}>
+                <div className="text-center mt-4">
+                  <h1 className="text-blue-500 font-bold text-3xl underline decoration-4 underline-offset-2">
+                    Add New Item
+                  </h1>
+                </div>
+              </Form.Item>
 
-
-          <Form.Item
-            label="Name"
-            name="name"
-            rules={[{ required: true, message: "Name is required!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Image Link"
-            name="image"
-            rules={[{ required: true, message: "Image Link is required!" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Price"
-            name="price"
-            rules={[{ required: true, message: "Price is mandatory!" }]}
-          >
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-
-          <Form.Item
-            label="Category"
-            name="category"
-            rules={[{ required: true, message: "Please select category!" }]}
-          >
-            <Select />
-          </Form.Item>
-
-          <Form.Item wrapperCol={{ span: 24 }}>
-            <div className="flex items-center justify-end gap-x-6">
-              <Button
-                type="default"
-                htmlType="button"
-                onClick={() => setModal(false)}
+              {/* name */}
+              <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "Name is required!" }]}
               >
-                Cancel
-              </Button>
-              <Button type="primary" htmlType="submit">
-                Save
-              </Button>
-            </div>
-          </Form.Item>
-        </Form>
+                <Input />
+              </Form.Item>
+
+              {/* image */}
+              <Form.Item
+                label="Image Link"
+                name="image"
+                rules={[{ required: true, message: "Image Link is required!" }]}
+              >
+                <Input />
+              </Form.Item>
+
+              {/* price */}
+              <Form.Item
+                label="Price"
+                name="price"
+                rules={[{ required: true, message: "Price is mandatory!" }]}
+              >
+                <InputNumber min={0} style={{ width: "100%" }} />
+              </Form.Item>
+
+              {/* weight */}
+              <Form.Item
+                label="Unit Weight"
+                name="unitWeight"
+                rules={[
+                  { required: true, message: "Unit Weight is required!" },
+                ]}
+              >
+                <Select
+                  placeholder="Please select unit weight"
+                  options={unitWeightOptions}
+                />
+              </Form.Item>
+
+              {/* category */}
+              <Form.Item
+                label="Category"
+                name="category"
+                rules={[{ required: true, message: "Please select category!" }]}
+              >
+                <Select
+                  placeholder="Please select category"
+                  options={categoryOptions}
+                />
+              </Form.Item>
+
+              {/* quantity */}
+              <Form.Item
+                label="Quantity"
+                name="quantity"
+                rules={[{ required: true, message: "Quantity is mandatory!" }]}
+              >
+                <InputNumber min={0} style={{ width: "100%" }} />
+              </Form.Item>
+
+              <Form.Item wrapperCol={{ span: 24 }}>
+                <div className="flex items-center justify-end gap-x-6">
+                  <Button
+                    type="default"
+                    htmlType="button"
+                    onClick={() => setModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="primary" htmlType="submit">
+                    Save
+                  </Button>
+                </div>
+              </Form.Item>
+            </Form>
+          )}
+        </>
       </Modal>
     </div>
   );

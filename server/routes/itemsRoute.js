@@ -5,10 +5,17 @@ const router = express.Router();
 const itemsModel = require("../models/itemsModel");
 
 // Fix the parameter order: (req, res)
+// GET
 router.get("/", async (req, res) => {
   try {
-    const items = await itemsModel.find();
-    console.log(items)
+    // Admins can pass ?status=active,inactive,archived
+    const statusFilter = req.query.status
+      ? { status: { $in: req.query.status.split(",") } }
+      : { status: "active" }; // Default for regular users
+    
+    // now find the parameters
+    const items = await itemsModel.find(statusFilter);
+    console.log(items);
     res.send({
       success: true,
       message: items,
@@ -22,17 +29,39 @@ router.get("/", async (req, res) => {
 });
 
 // now addItems route
-
+// POST
 router.post("/", async (req, res) => {
   try {
-    const newItem = new itemsModel(req.body)
-    await newItem.save()
 
-    // item added successfully
-    res.send({
-      success: true,
-      message: "Item added successfully"
-    })
+    const existingItem = await itemsModel.findOne({ name: req.body.name })
+  
+    if (existingItem) {
+      res.status(400).send({
+        success: false,
+        message: `Item Name "${existingItem.name}" already Exists`,
+        item: existingItem
+      });
+      return
+    }
+    const newItem = new itemsModel(req.body)
+    const item = await newItem.save();
+    if(item) {
+
+      // item added successfully
+      res.send({
+        success: true,
+        message: "Item added successfully",
+        item
+      })
+    }
+    else {
+      res.status(400).send({
+        success: false,
+        message: "Error adding new item",
+        item
+      })
+
+    }
 
 
   } catch (error) {
