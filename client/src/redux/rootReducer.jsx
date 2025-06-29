@@ -13,16 +13,19 @@ export const rootReducer = (state = initialState, action) => {
     case "updateQuantity":
       return {
         ...state,
-          cartItems: state.cartItems.map((item) => {
+        cartItems: state.cartItems.map((item) => {
           return item["_id"] === action.payload["_id"]
             ? { ...item, quantity: action.payload.quantity }
             : item;
         }),
       };
-    case "deleteFromCart": return {
-      ...state,
-      cartItems: state.cartItems.filter(item => item['_id'] !== action.payload)
-    }
+    case "deleteFromCart":
+      return {
+        ...state,
+        cartItems: state.cartItems.filter(
+          (item) => item["_id"] !== action.payload
+        ),
+      };
     default:
       return state;
   }
