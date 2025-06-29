@@ -40,7 +40,7 @@ const Cart = () => {
   function decreaseQuantity(record) {
     dispatch({
       type: "updateQuantity",
-      payload: { ...record, quantity: record.quantity - 1 },
+      payload: { ...record, quantity: record.quantity > 1 ? record.quantity - 1 : record.quantity },
     });
   }
 
@@ -52,7 +52,7 @@ const Cart = () => {
       <ArrowLeftOutlined />
       Back
     </div>
-      <Table dataSource={cartItems} rowKey={() => i++} bordered>
+      <Table dataSource={cartItems} rowKey={() => i++} bordered className="capitalize" >
         <Column title="Sr." render={() => i} />
         <Column
           title="Image"
