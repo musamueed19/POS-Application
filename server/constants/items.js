@@ -34,6 +34,7 @@ async function insertItems() {
     } else {
       console.log("No new items to insert.");
     }
+    // const res = await itemsModel.insertMany(items);
   } catch (err) {
     console.error("Error inserting items:", err);
   } finally {
