@@ -83,6 +83,7 @@ const Items = () => {
 
   // item state
   const [item, setItem] = useState(null);
+  const [isPending, setIsPending] = useState(false);
 
   // counter
   let i = 0;
@@ -91,7 +92,6 @@ const Items = () => {
   const [form] = Form.useForm(); // Add this at the top with your other hooks
 
   function getAllItems() {
-    setIsLoading(true);
     axios
       .get(
         `${
@@ -113,10 +113,12 @@ const Items = () => {
   }
 
   useEffect(() => {
+    setIsLoading(true);
     getAllItems();
   }, []);
 
   function onFinish(values = {}) {
+    setIsPending(true);
     if (modalType === "add new item") {
       axios
         .post(`${import.meta.env.VITE_API_URL}/api/v0/items`, {
@@ -127,11 +129,13 @@ const Items = () => {
           getAllItems();
           message.success(res?.data?.message);
           setModal(false);
+          setIsPending(false); // Move here
         })
         .catch((err) => {
           message.error(
             err.response?.data?.message || err.message || "Failed to add item"
           );
+          setIsPending(false); // And here
         });
     } else if (modalType === "edit item") {
       axios
@@ -143,6 +147,7 @@ const Items = () => {
           getAllItems();
           message.success(res?.data?.message);
           setModal(false);
+          setIsPending(false); // Move here
         })
         .catch((err) => {
           message.error(
@@ -150,22 +155,24 @@ const Items = () => {
               err.message ||
               "Failed to update item"
           );
+          setIsPending(false); // And here
         });
-    }
-    else if (modalType === "delete item") {
+    } else if (modalType === "delete item") {
       axios
-        .delete(`${import.meta.env.VITE_API_URL}/api/v0/items/${item}`)
+        .delete(`${import.meta.env.VITE_API_URL}/api/v0/items/${item._id}`)
         .then((res) => {
           getAllItems();
           message.success(res?.data?.message);
           setModal(false);
+          setIsPending(false); // Move here
         })
         .catch((err) => {
           message.error(
             err.response?.data?.message ||
               err.message ||
-              "Failed to update item"
+              "Failed to delete item"
           );
+          setIsPending(false); // And here
         });
     }
   }
@@ -184,6 +191,7 @@ const Items = () => {
           onClick={() => {
             setModal(true);
             setModalType("add new item");
+            form.resetFields();
           }}
           className="font-semibold text-lg text-white bg-blue-500 px-2 py-1 rounded-md space-x-1 cursor-pointer hover:bg-blue-600/90 active:ring-4 active:ring-blue-200"
         >
@@ -254,16 +262,17 @@ const Items = () => {
                   setModal(true);
                   setModalType("edit item");
                   setItem(record);
+                  form.setFieldsValue(record);
                 }}
-                >
+              >
                 <EditOutlined />
               </button>
               <button
                 className="text-xl cursor-pointer text-red-600 active:bg-red-100 p-1 px-2 rounded-md"
                 onClick={() => {
                   setModalType("delete item");
-                  setItem(record["_id"]);
-                  onFinish();
+                  setModal(true);
+                  setItem(record);
                 }}
               >
                 <DeleteOutlined />
@@ -276,9 +285,9 @@ const Items = () => {
       {/* Modal */}
       <Modal
         onCancel={() => {
-          setModal(false)
-          setItem(null)
-          form.resetFields()
+          setModal(false);
+          setItem(null);
+          form.resetFields();
         }}
         open={modal}
         footer={false}
@@ -298,103 +307,131 @@ const Items = () => {
               />
             </div>
           )}
-          {(modalType === "add new item" || modalType === "edit item") && (
-            <Form layout="vertical" onFinish={onFinish} initialValues={item}>
+          {(modalType === "add new item" ||
+            modalType === "edit item" ||
+            modalType === "delete item") && (
+            <Form form={form} layout="vertical" onFinish={onFinish}>
               <Form.Item wrapperCol={{ span: 24 }}>
                 <div className="text-center mt-4">
-                  <h1 className="text-blue-500 font-bold text-3xl underline decoration-4 underline-offset-2 capitalize">
+                  <h1
+                    className={`${
+                      modalType === "delete item"
+                        ? "text-red-600"
+                        : "text-blue-500"
+                    } font-bold text-3xl underline decoration-4 underline-offset-2 capitalize`}
+                  >
                     {modalType}
                   </h1>
                 </div>
               </Form.Item>
 
-              {/* status */}
-              {modalType === "edit item" && (
-                <Form.Item
-                  className="md:w-[40%]"
-                  label="Status"
-                  name="status"
-                  rules={[{ required: true, message: "Status is required!" }]}
-                >
-                  <Select
-                    placeholder="Please select a status"
-                    options={statusOptions}
-                  />
-                </Form.Item>
+              {modalType === "delete item" && (
+                <div className="mt-10">
+                  <p className="text-lg font-medium">
+                    Are you sure you want to delete this item{" "}
+                    <span className="font-bold text-red-600">
+                      "{item.name}"
+                    </span>
+                  </p>
+                </div>
               )}
 
-              {/* name */}
-              <Form.Item
-                label="Name"
-                name="name"
-                rules={[{ required: true, message: "Name is required!" }]}
-              >
-                <Input />
-              </Form.Item>
+              {(modalType === "add new item" || modalType === "edit item") && (
+                <>
+                  {/* status */}
+                  {modalType === "edit item" && (
+                    <Form.Item
+                      className="md:w-[40%]"
+                      label="Status"
+                      name="status"
+                      rules={[
+                        { required: true, message: "Status is required!" },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Please select a status"
+                        options={statusOptions}
+                      />
+                    </Form.Item>
+                  )}
 
-              {/* image */}
-              <Form.Item
-                label="Image Link"
-                name="image"
-                rules={[{ required: true, message: "Image Link is required!" }]}
-              >
-                <Input />
-              </Form.Item>
+                  {/* name */}
+                  <Form.Item
+                    label="Name"
+                    name="name"
+                    rules={[{ required: true, message: "Name is required!" }]}
+                  >
+                    <Input />
+                  </Form.Item>
 
-              <div className="grid md:grid-cols-2 gap-x-4">
-                {/* price */}
-                <Form.Item
-                  label="Price"
-                  name="price"
-                  rules={[{ required: true, message: "Price is mandatory!" }]}
-                >
-                  <InputNumber min={0} style={{ width: "100%" }} />
-                </Form.Item>
+                  {/* image */}
+                  <Form.Item
+                    label="Image Link"
+                    name="image"
+                    rules={[
+                      { required: true, message: "Image Link is required!" },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
 
-                {/* weight */}
-                <Form.Item
-                  label="Unit Weight"
-                  name="unitWeight"
-                  rules={[
-                    { required: true, message: "Unit Weight is required!" },
-                  ]}
-                >
-                  <Select
-                    placeholder="Please select unit weight"
-                    options={unitWeightOptions}
-                  />
-                </Form.Item>
-              </div>
+                  <div className="grid md:grid-cols-2 gap-x-4">
+                    {/* price */}
+                    <Form.Item
+                      label="Price"
+                      name="price"
+                      rules={[
+                        { required: true, message: "Price is mandatory!" },
+                      ]}
+                    >
+                      <InputNumber min={0} style={{ width: "100%" }} />
+                    </Form.Item>
 
-              <div className="grid md:grid-cols-2 gap-x-4">
-                {/* category */}
-                <Form.Item
-                  label="Category"
-                  name="category"
-                  rules={[
-                    { required: true, message: "Please select category!" },
-                  ]}
-                >
-                  <Select
-                    placeholder="Please select category"
-                    options={categoryOptions}
-                  />
-                </Form.Item>
+                    {/* weight */}
+                    <Form.Item
+                      label="Unit Weight"
+                      name="unitWeight"
+                      rules={[
+                        { required: true, message: "Unit Weight is required!" },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Please select unit weight"
+                        options={unitWeightOptions}
+                      />
+                    </Form.Item>
+                  </div>
 
-                {/* quantity */}
-                <Form.Item
-                  label="Quantity"
-                  name="quantity"
-                  rules={[
-                    { required: true, message: "Quantity is mandatory!" },
-                  ]}
-                >
-                  <InputNumber min={0} style={{ width: "100%" }} />
-                </Form.Item>
-              </div>
+                  <div className="grid md:grid-cols-2 gap-x-4">
+                    {/* category */}
+                    <Form.Item
+                      label="Category"
+                      name="category"
+                      rules={[
+                        { required: true, message: "Please select category!" },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Please select category"
+                        options={categoryOptions}
+                      />
+                    </Form.Item>
 
+                    {/* quantity */}
+                    <Form.Item
+                      label="Quantity"
+                      name="quantity"
+                      rules={[
+                        { required: true, message: "Quantity is mandatory!" },
+                      ]}
+                    >
+                      <InputNumber min={0} style={{ width: "100%" }} />
+                    </Form.Item>
+                  </div>
+                </>
+              )}
               <Form.Item wrapperCol={{ span: 24 }}>
-                <div className="flex items-center justify-end gap-x-6">
+                <div className="flex items-center justify-end gap-x-6 mt-6">
                   <Button
                     type="default"
                     htmlType="button"
@@ -402,8 +439,8 @@ const Items = () => {
                   >
                     Cancel
                   </Button>
-                  <Button type="primary" htmlType="submit">
-                    Save
+                  <Button type="primary" htmlType="submit" disabled={isPending}>
+                    {isPending ? <Loader isPending={true} /> : (modalType === "delete item" ? "Delete" : "Save")}
                   </Button>
                 </div>
               </Form.Item>
