@@ -53,6 +53,12 @@ const categoryOptions = [
   { value: "kitchen", label: "Kitchen" },
 ];
 
+const statusOptions = [
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "draft", label: "Draft" },
+];
+
 const unitWeightOptions = [
   { value: "gram", label: "Gram" },
   { value: "kg", label: "Kg" },
@@ -75,10 +81,14 @@ const Items = () => {
   // store ImageURL
   const [imageUrl, setImageUrl] = useState(null);
 
+  // item state
+  const [item, setItem] = useState(null);
+
   // counter
   let i = 0;
 
   // Form related fields
+  const [form] = Form.useForm(); // Add this at the top with your other hooks
 
   function getAllItems() {
     setIsLoading(true);
@@ -106,26 +116,58 @@ const Items = () => {
     getAllItems();
   }, []);
 
-  function onFinish(values) {
-    console.log({
-      ...values,
-      updatedBy: "admin",
-    });
-    axios
-      .post(`${import.meta.env.VITE_API_URL}/api/v0/items`, {
-        ...values,
-        updatedBy: "admin",
-      })
-      .then((res) => {
-        getAllItems();
-        message.success(res?.data?.message);
-        setModal(false);
-      })
-      .catch((err) => {
-        message.error(
-          err.response?.data?.message || err.message || "Failed to fetch items"
-        );
-      });
+  function onFinish(values = {}) {
+    if (modalType === "add new item") {
+      axios
+        .post(`${import.meta.env.VITE_API_URL}/api/v0/items`, {
+          ...values,
+          updatedBy: "admin",
+        })
+        .then((res) => {
+          getAllItems();
+          message.success(res?.data?.message);
+          setModal(false);
+        })
+        .catch((err) => {
+          message.error(
+            err.response?.data?.message || err.message || "Failed to add item"
+          );
+        });
+    } else if (modalType === "edit item") {
+      axios
+        .put(`${import.meta.env.VITE_API_URL}/api/v0/items/${item._id}`, {
+          ...values,
+          updatedBy: "admin",
+        })
+        .then((res) => {
+          getAllItems();
+          message.success(res?.data?.message);
+          setModal(false);
+        })
+        .catch((err) => {
+          message.error(
+            err.response?.data?.message ||
+              err.message ||
+              "Failed to update item"
+          );
+        });
+    }
+    else if (modalType === "delete item") {
+      axios
+        .delete(`${import.meta.env.VITE_API_URL}/api/v0/items/${item}`)
+        .then((res) => {
+          getAllItems();
+          message.success(res?.data?.message);
+          setModal(false);
+        })
+        .catch((err) => {
+          message.error(
+            err.response?.data?.message ||
+              err.message ||
+              "Failed to update item"
+          );
+        });
+    }
   }
 
   if (isLoading) return <Loader />;
@@ -141,7 +183,7 @@ const Items = () => {
         <button
           onClick={() => {
             setModal(true);
-            setModalType("addItem");
+            setModalType("add new item");
           }}
           className="font-semibold text-lg text-white bg-blue-500 px-2 py-1 rounded-md space-x-1 cursor-pointer hover:bg-blue-600/90 active:ring-4 active:ring-blue-200"
         >
@@ -206,10 +248,24 @@ const Items = () => {
           dataIndex={"_id"}
           render={(id, record) => (
             <div className="text-xl">
-              <button className="text-xl cursor-pointer text-blue-600 active:bg-blue-100 p-1 px-2 rounded-md">
+              <button
+                className="text-xl cursor-pointer text-blue-600 active:bg-blue-100 p-1 px-2 rounded-md"
+                onClick={() => {
+                  setModal(true);
+                  setModalType("edit item");
+                  setItem(record);
+                }}
+                >
                 <EditOutlined />
               </button>
-              <button className="text-xl cursor-pointer text-red-600 active:bg-red-100 p-1 px-2 rounded-md">
+              <button
+                className="text-xl cursor-pointer text-red-600 active:bg-red-100 p-1 px-2 rounded-md"
+                onClick={() => {
+                  setModalType("delete item");
+                  setItem(record["_id"]);
+                  onFinish();
+                }}
+              >
                 <DeleteOutlined />
               </button>
             </div>
@@ -219,16 +275,14 @@ const Items = () => {
 
       {/* Modal */}
       <Modal
-        onCancel={() => setModal(false)}
+        onCancel={() => {
+          setModal(false)
+          setItem(null)
+          form.resetFields()
+        }}
         open={modal}
         footer={false}
-        width={modalType === "viewImage" ? "60%" : undefined}
-        style={{
-          padding: 0,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        className="w-[95%] md:w-[80%] lg:w-[70%]"
       >
         <>
           {modalType === "viewImage" && (
@@ -244,15 +298,30 @@ const Items = () => {
               />
             </div>
           )}
-          {modalType === "addItem" && (
-            <Form layout="vertical" onFinish={onFinish}>
+          {(modalType === "add new item" || modalType === "edit item") && (
+            <Form layout="vertical" onFinish={onFinish} initialValues={item}>
               <Form.Item wrapperCol={{ span: 24 }}>
                 <div className="text-center mt-4">
-                  <h1 className="text-blue-500 font-bold text-3xl underline decoration-4 underline-offset-2">
-                    Add New Item
+                  <h1 className="text-blue-500 font-bold text-3xl underline decoration-4 underline-offset-2 capitalize">
+                    {modalType}
                   </h1>
                 </div>
               </Form.Item>
+
+              {/* status */}
+              {modalType === "edit item" && (
+                <Form.Item
+                  className="md:w-[40%]"
+                  label="Status"
+                  name="status"
+                  rules={[{ required: true, message: "Status is required!" }]}
+                >
+                  <Select
+                    placeholder="Please select a status"
+                    options={statusOptions}
+                  />
+                </Form.Item>
+              )}
 
               {/* name */}
               <Form.Item
@@ -272,49 +341,57 @@ const Items = () => {
                 <Input />
               </Form.Item>
 
-              {/* price */}
-              <Form.Item
-                label="Price"
-                name="price"
-                rules={[{ required: true, message: "Price is mandatory!" }]}
-              >
-                <InputNumber min={0} style={{ width: "100%" }} />
-              </Form.Item>
+              <div className="grid md:grid-cols-2 gap-x-4">
+                {/* price */}
+                <Form.Item
+                  label="Price"
+                  name="price"
+                  rules={[{ required: true, message: "Price is mandatory!" }]}
+                >
+                  <InputNumber min={0} style={{ width: "100%" }} />
+                </Form.Item>
 
-              {/* weight */}
-              <Form.Item
-                label="Unit Weight"
-                name="unitWeight"
-                rules={[
-                  { required: true, message: "Unit Weight is required!" },
-                ]}
-              >
-                <Select
-                  placeholder="Please select unit weight"
-                  options={unitWeightOptions}
-                />
-              </Form.Item>
+                {/* weight */}
+                <Form.Item
+                  label="Unit Weight"
+                  name="unitWeight"
+                  rules={[
+                    { required: true, message: "Unit Weight is required!" },
+                  ]}
+                >
+                  <Select
+                    placeholder="Please select unit weight"
+                    options={unitWeightOptions}
+                  />
+                </Form.Item>
+              </div>
 
-              {/* category */}
-              <Form.Item
-                label="Category"
-                name="category"
-                rules={[{ required: true, message: "Please select category!" }]}
-              >
-                <Select
-                  placeholder="Please select category"
-                  options={categoryOptions}
-                />
-              </Form.Item>
+              <div className="grid md:grid-cols-2 gap-x-4">
+                {/* category */}
+                <Form.Item
+                  label="Category"
+                  name="category"
+                  rules={[
+                    { required: true, message: "Please select category!" },
+                  ]}
+                >
+                  <Select
+                    placeholder="Please select category"
+                    options={categoryOptions}
+                  />
+                </Form.Item>
 
-              {/* quantity */}
-              <Form.Item
-                label="Quantity"
-                name="quantity"
-                rules={[{ required: true, message: "Quantity is mandatory!" }]}
-              >
-                <InputNumber min={0} style={{ width: "100%" }} />
-              </Form.Item>
+                {/* quantity */}
+                <Form.Item
+                  label="Quantity"
+                  name="quantity"
+                  rules={[
+                    { required: true, message: "Quantity is mandatory!" },
+                  ]}
+                >
+                  <InputNumber min={0} style={{ width: "100%" }} />
+                </Form.Item>
+              </div>
 
               <Form.Item wrapperCol={{ span: 24 }}>
                 <div className="flex items-center justify-end gap-x-6">

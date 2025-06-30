@@ -71,6 +71,7 @@ const DefaultLayout = ({ children }) => {
     <Layout
       style={{
         minHeight: "100vh",
+        minWidth: "fit-content",
       }}
     >
       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -90,7 +91,12 @@ const DefaultLayout = ({ children }) => {
           items={menuItems}
         />
       </Sider>
-      <Layout>
+      <Layout
+        style={{
+          minHeight: "100vh",
+          minWidth: "fit-content",
+        }}
+      >
         <Header style={{ padding: 0, background: colorBgContainer }}>
           {/* parent div container */}
           <div className="flex justify-between items-center pr-4">
@@ -106,11 +112,14 @@ const DefaultLayout = ({ children }) => {
             />
 
             {/* Cart Icon */}
-            <button onClick={() => navigate('/cart')} className="text-3xl cursor-pointer flex items-center justify-between relative active:bg-gray-200/80 p-1 rounded-md text-gray-600">
+            <button
+              onClick={() => navigate("/cart")}
+              className="text-3xl cursor-pointer flex items-center justify-between relative active:bg-gray-200/80 p-1 rounded-md text-gray-600"
+            >
               <ShoppingOutlined />
               {/* <span className="text-sm fixed top-4 right-6 font-medium text-white bg-red-600 rounded-md w-[25px]">2</span> */}
               <span className="flex items-center justify-center text-[12px] bg-red-600 text-white font-medium w-[1.2rem] h-[1.2rem] rounded-full absolute top-1 -right-0.5">
-              {cartItems.length}
+                {cartItems.length}
               </span>
             </button>
           </div>

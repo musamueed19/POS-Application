@@ -73,6 +73,105 @@ router.post("/", async (req, res) => {
 })
 
 
+// now addItems route
+// PUT
+router.put("/:id", async (req, res) => {
+  try {
+    const itemId = req.params.id;
+
+    // Check if another item with the same name but different ID exists
+    const existingItem = await itemsModel.findOne({
+      name: req.body.name,
+      _id: { $ne: itemId }, // $ne means "not equal"
+    });
+
+    if (existingItem) {
+      return res.status(400).send({
+        success: false,
+        message: `Item Name "${existingItem.name}" already exists`,
+        item: existingItem,
+      });
+    }
+
+    // Update the item
+    const updatedItem = await itemsModel.findByIdAndUpdate(
+      itemId,
+      {...req.body, updatedAt: new Date},
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedItem) {
+      return res.status(404).send({
+        success: false,
+        message: "Item not found",
+      });
+    }
+
+    res.send({
+      success: true,
+      message: "Item updated successfully",
+      item: updatedItem,
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      message: error.message || "Error updating item",
+    });
+  }
+});
+
+
+// DELETE
+router.delete("/:id", async (req, res) => {
+  try {
+    const itemId = req.params.id;
+
+    // Update the item
+    const deletedItem = await itemsModel.findByIdAndUpdate(
+      itemId,
+      {status: "archived", archivedAt: new Date, updatedAt: new Date},
+      { new: true } // Return the updated document
+    );
+
+    if (!deletedItem) {
+      return res.status(404).send({
+        success: false,
+        message: "Item not found",
+      });
+    }
+
+    res.send({
+      success: true,
+      message: "Item deleted successfully",
+      item: deletedItem,
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      message: error.message || "Error updating item",
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // now get OneRecord
 router.get("/:id", async (req, res) => {
   try {
