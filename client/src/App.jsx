@@ -8,6 +8,7 @@ import Items from "./pages/Items";
 import Bills from "./pages/Bills";
 import Customers from "./pages/Customers";
 import Cart from "./pages/Cart";
+import Register from "./pages/Register";
 
 // components
 import Header from "./components/Header";
@@ -17,17 +18,20 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
-        <DefaultLayout>
-          <Routes>
-            <Route path="*" element={<Login />} />
-            <Route path="/" element={<Login />} />
+        <Routes>
+          {/* Routes with DefaultLayout */}
+          <Route element={<DefaultLayout />}>
             <Route path="/home" element={<HomePage />} />
             <Route path="/items" element={<Items />} />
             <Route path="/bills" element={<Bills />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/cart" element={<Cart />} />
-          </Routes>
-        </DefaultLayout>
+          </Route>
+
+          {/* Routes without DefaultLayout */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
       </BrowserRouter>
     </div>
   );

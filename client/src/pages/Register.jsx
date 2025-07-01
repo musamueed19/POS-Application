@@ -4,11 +4,13 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 // auth background
-import authBackground from "../assets/authBg.svg";
+import authBackground from '../assets/authBg.svg'
 
-const Login = () => {
-  // isPending state
-  const [isPending, setIsPending] = useState(false);
+const Register = () => {
+
+    // isPending state
+    const [isPending, setIsPending] = useState(false)
+
 
   // onFinish function
   const onFinish = (values) => {
@@ -26,9 +28,18 @@ const Login = () => {
               <h1
                 className={`text-blue-500 font-bold text-3xl underline decoration-4 underline-offset-2 uppercase`}
               >
-                Login
+                Register
               </h1>
             </div>
+          </Form.Item>
+
+          {/* name */}
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Name is required!" }]}
+          >
+            <Input />
           </Form.Item>
 
           {/* email */}
@@ -52,13 +63,13 @@ const Login = () => {
           <Form.Item wrapperCol={{ span: 24 }}>
             <div className="flex flex-col md:flex-row items-start justify-between gap-x-6 mt-6">
               <span className="font-medium">
-                Don't have an account?{" "}
-                <Link to={"/register"} className="underline text-blue-500">
-                  Click here to Register
+                Already have an account?{" "}
+                <Link to={"/login"} className="underline text-blue-500">
+                  Click here to Login
                 </Link>
               </span>
               <Button type="primary" htmlType="submit" disabled={isPending}>
-                {isPending ? <Loader isPending={true} /> : "Login"}
+                {isPending ? <Loader isPending={true} /> : "Sign Up"}
               </Button>
             </div>
           </Form.Item>
@@ -68,4 +79,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
