@@ -96,7 +96,7 @@ const HomePage = () => {
   return (
     <div className="">
       {/* categories based foods */}
-      <div className="flex space-x-4 mb-6 overflow-x-scroll no-scrollbar">
+      <div className="flex space-x-4 mb-6 overflow-x-auto no-scrollbar">
         {categoryOptions.map((item, index) => (
           <div
             onClick={() => setActiveCategory(item.name)}
