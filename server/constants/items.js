@@ -65,6 +65,15 @@ async function dropCollection() {
 // dropCollection();
 insertItems();
 
+/*
+
+{
+  "name": "Admin",
+  "email": "dum123",
+  "password": "abc123"
+}
+
+*/
 
 
 module.exports = [items, insertItems];

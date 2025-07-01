@@ -1,28 +1,45 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
+import axios from "axios"
 
 // auth background
-import authBackground from '../assets/authBg.svg'
+import authBackground from "../assets/authBg.svg";
+
+// loader
+import Loader from "../components/Loader";
 
 const Register = () => {
-
-    // isPending state
-    const [isPending, setIsPending] = useState(false)
-
+  // isPending state
+  const [isPending, setIsPending] = useState(false);
 
   // onFinish function
   const onFinish = (values) => {
-    console.log(values);
+    setIsPending(true); // Move here
+    axios
+      .post(`${import.meta.env.VITE_API_URL}/api/v0/users/register`, values)
+      .then((res) => {
+        message.success(res?.data?.message);
+        setIsPending(false); // Move here
+      })
+      .catch((err) => {
+        console.clear(); // Clears all console errors (use carefully!)
+        message.error(
+          err.response?.data?.message || err.message || "Failed to add item"
+        );
+        setIsPending(false); // And here
+      });
   };
 
   return (
     <div
       className={`flex items-center justify-center h-screen bg-[url(${authBackground})] bg-center bg-cover`}
     >
-      <div className="w-screen h-screen flex md:block items-center md:w-[60vw] lg:w-[35vw] md:h-fit bg-white p-4 lg:px-6 rounded-md">
-        <Form layout="vertical" onFinish={onFinish} style={{width: '100%'}} >
+      <div className="w-screen h-screen flex flex-col md:block justify-center md:w-[60vw] lg:w-[35vw] md:h-fit bg-white p-4 lg:px-6 rounded-md">
+        
+        <h1 className="text-[2.9rem] font-bold w-full text-center border-b-2 pb-4 text-[#009bc6]">IGPOS</h1>
+        <Form layout="vertical" onFinish={onFinish} style={{ width: "100%" }}>
           <Form.Item wrapperCol={{ span: 24 }}>
             <div className="text-start mt-4">
               <h1
