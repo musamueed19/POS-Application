@@ -71,7 +71,7 @@ const DefaultLayout = ({ children }) => {
     <Layout
       style={{
         minHeight: "100vh",
-        minWidth: "fit-content",
+        // minWidth: "fit-content",
       }}
     >
       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -94,10 +94,17 @@ const DefaultLayout = ({ children }) => {
       <Layout
         style={{
           minHeight: "100vh",
-          minWidth: "fit-content",
+          // minWidth: "fit-content",
+          maxWidth: "100vw",
         }}
       >
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
+            // minWidth: "fit-content",
+          }}
+        >
           {/* parent div container */}
           <div className="flex justify-between items-center pr-4">
             <Button
@@ -126,7 +133,7 @@ const DefaultLayout = ({ children }) => {
         </Header>
         <Content
           style={{
-            margin: "10px 0 0 10px",
+            // margin: "10px 0 0 10px",
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,
