@@ -1,29 +1,46 @@
 const express = require("express");
 
+const mongoose = require("mongoose");
+
 const router = express.Router();
 
 const itemsModel = require("../models/itemsModel");
+const usersModel = require("../models/usersModel");
 
 // Fix the parameter order: (req, res)
 // GET
 router.get("/", async (req, res) => {
   try {
-    // Admins can pass ?status=active,inactive,archived
     const statusFilter = req.query.status
       ? { status: { $in: req.query.status.split(",") } }
-      : { status: "active" }; // Default for regular users
-    
-    // now find the parameters
-    const items = await itemsModel.find(statusFilter);
-    console.log(items);
+      : { status: "active" };
+
+    // Get all items and populate user names
+    const items = await itemsModel
+      .find(statusFilter)
+      .populate({
+        path: "updatedBy",
+        select: "name", // Only get the name field
+        options: { lean: true },
+      })
+      .lean();
+
+    // Enhance items to replace updatedBy with user name
+    const enhancedItems = items.map((item) => {
+      return {
+        ...item,
+        updatedBy: item.updatedBy?.name || "Unknown", // Use optional chaining
+      };
+    });
+
     res.send({
       success: true,
-      message: items,
+      message: enhancedItems,
     });
   } catch (error) {
     res.status(400).send({
       success: false,
-      message: error.message || error,
+      message: error.message,
     });
   }
 });
@@ -122,14 +139,16 @@ router.put("/:id", async (req, res) => {
 
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:userId/:itemId", async (req, res) => {
   try {
-    const itemId = req.params.id;
+    const {userId, itemId} = req.params;
+
+    console.log('DELETE Item ------ ', itemId, userId)
 
     // Update the item
     const deletedItem = await itemsModel.findByIdAndUpdate(
       itemId,
-      {status: "archived", archivedAt: new Date, updatedAt: new Date},
+      {status: "archived", archivedAt: new Date, updatedAt: new Date, updatedBy: userId},
       { new: true } // Return the updated document
     );
 
@@ -142,7 +161,7 @@ router.delete("/:id", async (req, res) => {
 
     res.send({
       success: true,
-      message: "Item deleted successfully",
+      message: "Item Deleted Successfully",
       item: deletedItem,
     });
   } catch (error) {

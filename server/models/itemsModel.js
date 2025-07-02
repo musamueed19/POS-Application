@@ -8,7 +8,11 @@ const itemsSchema = new mongoose.Schema(
     image: { type: String, required: true },
     quantity: { type: Number, required: true },
     unitWeight: { type: String, required: true, enum: ["kg", "litre", "dozen", "gram", "pound", "ounce"] },
-    updatedBy: {type: String, required: true},
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users', // This should match your user model name
+      required: true
+    },
     status: {
       type: String,
       default: "active",

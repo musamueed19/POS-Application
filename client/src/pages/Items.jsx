@@ -106,14 +106,15 @@ const Items = () => {
     getAllItems();
   }, []);
 
-  function onFinish(values = {}) {
+  function onFinish(value) {
+    const values = {
+      ...value,
+      updatedBy: JSON.parse(localStorage.getItem("user"))._id
+    }
     setIsPending(true);
     if (modalType === "add new item") {
       axios
-        .post(`${import.meta.env.VITE_API_URL}/api/v0/items`, {
-          ...values,
-          updatedBy: "admin",
-        })
+        .post(`${import.meta.env.VITE_API_URL}/api/v0/items`, values)
         .then((res) => {
           getAllItems();
           message.success(res?.data?.message);
@@ -128,10 +129,7 @@ const Items = () => {
         });
     } else if (modalType === "edit item") {
       axios
-        .put(`${import.meta.env.VITE_API_URL}/api/v0/items/${item._id}`, {
-          ...values,
-          updatedBy: "admin",
-        })
+        .put(`${import.meta.env.VITE_API_URL}/api/v0/items/${item._id}`, values)
         .then((res) => {
           getAllItems();
           message.success(res?.data?.message);
@@ -148,7 +146,11 @@ const Items = () => {
         });
     } else if (modalType === "delete item") {
       axios
-        .delete(`${import.meta.env.VITE_API_URL}/api/v0/items/${item._id}`)
+        .delete(
+          `${import.meta.env.VITE_API_URL}/api/v0/items/${
+            JSON.parse(localStorage.getItem("user"))._id
+          }/${item._id}`
+        )
         .then((res) => {
           getAllItems();
           message.success(res?.data?.message);
@@ -236,6 +238,13 @@ const Items = () => {
         <Column
           title="Status"
           dataIndex={"status"}
+          sorter={(a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          } // Optional: keep sorting by status
+        />
+        <Column
+          title="Updated By"
+          dataIndex={"updatedBy"}
           sorter={(a, b) =>
             a.name.toLowerCase().localeCompare(b.name.toLowerCase())
           } // Optional: keep sorting by status
