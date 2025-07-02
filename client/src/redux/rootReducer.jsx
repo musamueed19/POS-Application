@@ -1,6 +1,7 @@
 const initialState = {
   loading: false,
   cartItems: [],
+  user: null,
 };
 
 export const rootReducer = (state = initialState, action) => {
@@ -26,6 +27,22 @@ export const rootReducer = (state = initialState, action) => {
           (item) => item["_id"] !== action.payload
         ),
       };
+    case "login":
+      {
+        console.log(state.user, action.payload)
+        return {
+          ...state,
+          user: action.payload,
+        };
+     }
+    case "logout":
+      {
+        console.log(state.user, action.payload);
+        return {
+          ...state,
+          user: action.payload,
+        };
+      }
     default:
       return state;
   }

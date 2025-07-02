@@ -18,6 +18,9 @@ const initialState = {
     cartItems: localStorage.getItem("cartItems")
       ? JSON.parse(localStorage.getItem("cartItems"))
       : [],
+    user: localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user"))
+      : null,
   },
 };
 

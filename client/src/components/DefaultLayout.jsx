@@ -14,38 +14,11 @@ import { Button, Layout, Menu, theme } from "antd";
 const { Header, Sider, Content } = Layout;
 
 // Link
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 // menuItems <Array>
 const size = 24;
-const menuItems = [
-  {
-    key: "/home",
-    icon: <HomeOutlined size={size} />,
-    label: <Link to={"/home"}>Home</Link>,
-  },
-  {
-    key: "/bills",
-    icon: <PrinterOutlined size={size} />,
-    label: <Link to={"/bills"}>Bills</Link>,
-  },
-  {
-    key: "/items",
-    icon: <UnorderedListOutlined size={size} />,
-    label: <Link to={"/items"}>Items</Link>,
-  },
-  {
-    key: "/customers",
-    icon: <UserOutlined size={size} />,
-    label: <Link to={"/customers"}>Customers</Link>,
-  },
-  {
-    key: "/logout",
-    icon: <LogoutOutlined size={size} />,
-    label: <Link to={"/logout"}>Logout</Link>,
-  },
-];
 
 // component
 const DefaultLayout = ({ children }) => {
@@ -54,18 +27,64 @@ const DefaultLayout = ({ children }) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-
   // useNavigate
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
+  
   // getting, cartItems, from the rootReducer, and localStorage
-  const { cartItems } = useSelector(state => state.rootReducer)
+  const { cartItems } = useSelector((state) => state.rootReducer);
+  
+  // dispatch
+  const dispatch = useDispatch();
+  
   
   // add/update cartItems in the localStorage too, when changed in the cartItems Redux state
   useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cartItems))
-  }, [cartItems])
-
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
+  
+  const menuItems = [
+    {
+      key: "/home",
+      icon: <HomeOutlined size={size} />,
+      label: <Link to={"/home"}>Home</Link>,
+    },
+    {
+      key: "/bills",
+      icon: <PrinterOutlined size={size} />,
+      label: <Link to={"/bills"}>Bills</Link>,
+    },
+    {
+      key: "/items",
+      icon: <UnorderedListOutlined size={size} />,
+      label: <Link to={"/items"}>Items</Link>,
+    },
+    {
+      key: "/customers",
+      icon: <UserOutlined size={size} />,
+      label: <Link to={"/customers"}>Customers</Link>,
+    },
+    {
+      key: "/logout",
+      icon: <LogoutOutlined size={size} />,
+      label: (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            logoutHandler();
+          }}
+          className="cursor-pointer"
+        >
+          Logout
+        </button>
+      ),
+    },
+  ];
+  // function logouthandler
+  function logoutHandler() {
+    // dispatch({ type: "logout", payload: null });
+    localStorage.removeItem("user")
+    navigate('/login')
+  }
 
   return (
     <Layout
@@ -140,7 +159,7 @@ const DefaultLayout = ({ children }) => {
             borderRadius: borderRadiusLG,
           }}
         >
-          {children}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

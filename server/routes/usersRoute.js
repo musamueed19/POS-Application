@@ -27,7 +27,7 @@ router.post("/register", async (req, res) => {
     if (item) {
       return res.send({
         success: true,
-        message: "Registration successful",
+        message: "Registration Successful",
         user: item,
       });
       }
@@ -57,19 +57,24 @@ router.post("/", async (req, res) => {
     if (!existingUser) {
       return res.status(400).send({
         success: false,
-        message: "User with this Email does not exists",
+        message: "User with this Email does not Exists",
         user: existingUser,
       });
     }
 
+    // Convert Mongoose document to a plain JS object first
+    const userObject = existingUser.toObject();
+
+    // Now destructure to remove password
+    const { password, ...user } = userObject;
+
     if (existingUser.password === req.body.password) {
       return res.send({
         success: true,
-        message: "Login successful",
-        user: existingUser,
+        message: "Login Successful",
+        user,
       });
-    }
-    else {
+    } else {
       return res.status(400).send({
         success: false,
         message: "Wrong Password",

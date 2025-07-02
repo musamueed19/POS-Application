@@ -1,7 +1,7 @@
 import { Button, Form, Input, message } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 // auth background
@@ -10,31 +10,57 @@ import authBackground from "../assets/authBg.svg";
 // loader
 import Loader from "../components/Loader";
 
+// dispatch
+import { useDispatch, useSelector } from "react-redux";
+
 const Login = () => {
   // isPending state
   const [isPending, setIsPending] = useState(false);
+
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.rootReducer);
 
   // onFinish function
   const onFinish = (values) => {
     setIsPending(true); // Move here
     axios
-      .post(`${import.meta.env.VITE_API_URL}/api/v0/users`, values,
+      .post(
+        `${import.meta.env.VITE_API_URL}/api/v0/users`,
+        values
         // {
         // validateStatus: (status) => status < 500, // Don't throw for 400-499 errors
         // }
       )
       .then((res) => {
         message.success(res?.data?.message);
+        localStorage.setItem("user", JSON.stringify(res?.data?.user));
+        // dispatch({ type: "login", payload: res?.data?.user });
+
+        navigate("/home");
         setIsPending(false); // Move here
       })
       .catch((err) => {
-        console.clear(); // Clears all console errors (use carefully!)
+        // console.clear(); // Clears all console errors (use carefully!)
         message.error(
           err.response?.data?.message || err.message || "Failed to add item"
         );
         setIsPending(false); // And here
       });
   };
+
+  // const { user } = useSelector((state) => state.rootReducer);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    if (localStorage.getItem("user")) navigate("/home");
+    // Small delay to ensure Redux state is loaded
+    const timer = setTimeout(() => setIsCheckingAuth(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isCheckingAuth) return <Loader />; // Show loader while checking auth
 
   return (
     <div

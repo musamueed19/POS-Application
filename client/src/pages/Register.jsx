@@ -1,7 +1,7 @@
 import { Button, Form, Input, message } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"
 
 // auth background
@@ -9,10 +9,15 @@ import authBackground from "../assets/authBg.svg";
 
 // loader
 import Loader from "../components/Loader";
+import { useSelector } from "react-redux";
 
 const Register = () => {
   // isPending state
   const [isPending, setIsPending] = useState(false);
+
+  const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.rootReducer);
 
   // onFinish function
   const onFinish = (values) => {
@@ -22,6 +27,8 @@ const Register = () => {
       .then((res) => {
         message.success(res?.data?.message);
         setIsPending(false); // Move here
+
+        navigate("/login");
       })
       .catch((err) => {
         console.clear(); // Clears all console errors (use carefully!)
@@ -31,14 +38,26 @@ const Register = () => {
         setIsPending(false); // And here
       });
   };
+  // const { user } = useSelector((state) => state.rootReducer);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    if (localStorage.getItem("user")) navigate("/home");
+    // Small delay to ensure Redux state is loaded
+    const timer = setTimeout(() => setIsCheckingAuth(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isCheckingAuth) return <Loader />; // Show loader while checking auth
 
   return (
     <div
       className={`flex items-center justify-center h-screen bg-[url(${authBackground})] bg-center bg-cover`}
     >
       <div className="w-screen h-screen flex flex-col md:block justify-center md:w-[60vw] lg:w-[35vw] md:h-fit bg-white p-4 lg:px-6 rounded-md">
-        
-        <h1 className="text-[2.9rem] font-bold w-full text-center border-b-2 pb-4 text-[#009bc6]">IGPOS</h1>
+        <h1 className="text-[2.9rem] font-bold w-full text-center border-b-2 pb-4 text-[#009bc6]">
+          IGPOS
+        </h1>
         <Form layout="vertical" onFinish={onFinish} style={{ width: "100%" }}>
           <Form.Item wrapperCol={{ span: 24 }}>
             <div className="text-start mt-4">
