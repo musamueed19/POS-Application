@@ -60,3 +60,29 @@ full-layout {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@media print {
+  body > *:not(.ant-modal) {
+    display: none;
+  }
+  
+  .ant-modal, 
+  .ant-modal-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-width: 100%;
+  }
+  
+  .ant-modal-body {
+    padding: 0;
+  }
+  
+  /* Hide print button in print view */
+  .no-print {
+    display: none !important;
+  }
+}

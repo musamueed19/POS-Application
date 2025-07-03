@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import axios from "axios";
 import { Modal, Table } from "antd";
@@ -11,10 +11,18 @@ const { Column } = Table;
 // antd icons
 import { EyeOutlined, WhatsAppOutlined } from "@ant-design/icons";
 
+
+// import ReactToPrint
+import ReactToPrint, { useReactToPrint } from "react-to-print"
+
 const Bills = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+
+  // bill reciept ref
+  const billReceiptRef = useRef(null); 
 
   // modal
   const [modal, setModal] = useState(false);
@@ -55,6 +63,12 @@ const Bills = () => {
 
     return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
   }
+
+
+  // handle Print
+  const handlePrint = useReactToPrint({
+    contentRef: billReceiptRef
+  });
 
   if (isLoading) return <Loader />;
 
@@ -127,134 +141,141 @@ const Bills = () => {
         onCancel={() => setModal(false)}
         open={modal}
         footer={false}
-        className="w-[95%] md:w-[80%] lg:w-[70%]"
+        // className="w-[95%] md:w-[80%] lg:w-[70%]"
         width={"100%"}
       >
         {/* conatiner */}
-        <div className="my-4 mx-auto md:w-[95%]">
-          {/* header */}
-          <div className="flex justify-between items-center border-b border-dashed pb-4">
-            <h2 className="text-xl lg:text-2xl font-bold">
-              Imran Bakers & General Store
-            </h2>
+        <div className="my-4 mx-auto md:w-[95%]" ref={billReceiptRef}>
+          {/* <div className="px-2"> */}
+            {/* header */}
+            <div className="flex justify-between items-center border-b border-dashed pb-4">
+              <h2 className="text-xl lg:text-2xl font-bold">
+                Imran Bakers & General Store
+              </h2>
 
-            {/* address */}
-            <div className="lg:text-[16px] font-medium">
-              <p>Lahore, Pakistan</p>
-              <Link
-                to={"https://maps.app.goo.gl/drduhF87QtKphNGEA"}
-                target="_blank"
-              >
-                Poonch Rd, Samanabad Town, 54000
-              </Link>
+              {/* address */}
+              <div className="lg:text-[16px] font-medium">
+                <p>Lahore, Pakistan</p>
+                <Link
+                  to={"https://maps.app.goo.gl/drduhF87QtKphNGEA"}
+                  target="_blank"
+                >
+                  Poonch Rd, Samanabad Town, 54000
+                </Link>
+                <p>
+                  <WhatsAppOutlined /> +92-3020949071
+                </p>
+              </div>
+            </div>
+
+            {/* Customer Details & Cashier Details */}
+            <div className="flex flex-col lg:flex-row lg:justify-between font-medium mt-4 md:text-[16px]">
+              <div>
+                <div>
+                  <p>
+                    Customer Name:
+                    <span className="font-normal ml-2 text-sm">
+                      {billData?.customerName}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    Phone #:
+                    <span className="font-normal ml-2 text-sm">
+                      {billData?.phoneNumber}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    Date:
+                    <span className="font-normal ml-2 text-sm">
+                      {dateFormatter(billData?.updatedAt)}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <p>
+                    Bill ID:
+                    <span className="font-normal ml-2 text-sm">
+                      {billData?._id}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    Cashier ID:
+                    <span className="font-normal ml-2 text-sm">
+                      {billData?.updatedBy}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    Payment Mode:
+                    <span className="font-normal ml-2 text-sm capitalize">
+                      {billData?.paymentMode}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* cart Items */}
+            <Table
+              pagination={false}
+              dataSource={billData?.cartItems}
+              rowKey={(record) => record._id}
+              bordered
+              className="capitalize my-4"
+            >
+              <Column
+                title="Sr."
+                render={(text, record, index) => index++ + 1}
+              />
+              <Column title="Name" dataIndex={"name"} />
+              <Column title="Unit Price" dataIndex={"price"} />
+              <Column title="Quantity" dataIndex={"quantity"} />
+              <Column
+                title="Total Price"
+                dataIndex={"_id"}
+                render={(text, record) => record.price * record.quantity}
+              />
+            </Table>
+            {/* subTotal & other bill amount */}
+            <div className="font-medium lg:text-lg mt-6 mb-2 border-y border-dotted py-4">
               <p>
-                <WhatsAppOutlined /> +92-3020949071
+                Sub Total:{" "}
+                <span className="font-normal">{billData?.subTotal}</span>
+              </p>
+              <p>
+                Tax: <span className="font-normal">{billData?.tax}</span>
               </p>
             </div>
-          </div>
-
-          {/* Customer Details & Cashier Details */}
-          <div className="flex flex-col lg:flex-row lg:justify-between font-medium mt-4 md:text-[16px]">
-            <div>
-              <div>
-                <p>
-                  Customer Name:
-                  <span className="font-normal ml-2 text-sm">
-                    {billData?.customerName}
-                  </span>
-                </p>
-              </div>
-              <div>
-                <p>
-                  Phone #:
-                  <span className="font-normal ml-2 text-sm">
-                    {billData?.phoneNumber}
-                  </span>
-                </p>
-              </div>
-              <div>
-                <p>
-                  Date:
-                  <span className="font-normal ml-2 text-sm">
-                    {dateFormatter(billData?.updatedAt)}
-                  </span>
-                </p>
-              </div>
-            </div>
-            <div>
-              <div>
-                <p>
-                  Bill ID:
-                  <span className="font-normal ml-2 text-sm">
-                    {billData?._id}
-                  </span>
-                </p>
-              </div>
-              <div>
-                <p>
-                  Cashier ID:
-                  <span className="font-normal ml-2 text-sm">
-                    {billData?.updatedBy}
-                  </span>
-                </p>
-              </div>
-              <div>
-                <p>
-                  Payment Mode:
-                  <span className="font-normal ml-2 text-sm capitalize">
-                    {billData?.paymentMode}
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* cart Items */}
-          <Table
-            pagination={false}
-            dataSource={billData?.cartItems}
-            rowKey={(record) => record._id}
-            bordered
-            className="capitalize my-4"
-          >
-            <Column title="Sr." render={(text, record, index) => index++ + 1} />
-            <Column title="Name" dataIndex={"name"} />
-            <Column title="Unit Price" dataIndex={"price"} />
-            <Column title="Quantity" dataIndex={"quantity"} />
-            <Column
-              title="Total Price"
-              dataIndex={"_id"}
-              render={(text, record) => record.price * record.quantity}
-            />
-          </Table>
-          {/* subTotal & other bill amount */}
-          <div className="font-medium lg:text-lg mt-6 mb-2 border-y border-dotted py-4">
-            <p>
-              Sub Total:{" "}
-              <span className="font-normal">{billData?.subTotal}</span>
+            <p className="text-xl font-bold">
+              Grand Total:{" "}
+              <span className="font-normal">{billData?.grandTotal}/-</span>
             </p>
-            <p>
-              Tax: <span className="font-normal">{billData?.tax}</span>
-            </p>
-          </div>
-          <p className="text-xl font-bold">
-            Grand Total:{" "}
-            <span className="font-normal">{billData?.grandTotal}/-</span>
-          </p>
 
-          {/* Greeting */}
+            {/* Greeting */}
 
-          <div className="w-full text-center text-lg">
-            <p>Thanks</p>
-            <p>Visit Again :)</p>
-          </div>
-
-          {/* Print Bill - btn */}
-          <div className="flex justify-end my-2">
-            <button className="w-fit px-4 py-1 rounded-md bg-blue-600/90 hover:bg-blue-600 cursor-pointer text-white font-medium">
-              Print Bill
-            </button>
-          </div>
+            <div className="w-full text-center text-lg">
+              <p>Thanks</p>
+              <p>Visit Again :)</p>
+            </div>
+            {/* Print Bill - btn */}
+            <div className="flex justify-end my-2">
+              <button
+                onClick={handlePrint}
+                className="w-fit px-4 py-1 rounded-md bg-blue-600/90 hover:bg-blue-600 cursor-pointer text-white font-medium"
+              >
+                Print Bill
+              </button>
+            </div>
+          {/* </div> */}
         </div>
       </Modal>
     </div>

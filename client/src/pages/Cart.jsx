@@ -94,7 +94,7 @@ const Cart = () => {
       ...values,
       subTotal,
       tax: ((subTotal * tax) / 100).toFixed(2),
-      grandTotal: +(subTotal - (subTotal * tax) / 100),
+      grandTotal: (subTotal - (subTotal * tax) / 100).toFixed(2),
       updatedBy: JSON.parse(localStorage.getItem("user"))._id,
       cartItems,
     };
@@ -192,7 +192,10 @@ const Cart = () => {
 
         <button
           className="w-fit mt-4 text-base px-3 py-1 font-semibold text-white bg-blue-600/90 hover:bg-blue-600 rounded-md cursor-pointer"
-          onClick={() => setModal(true)}
+          onClick={() => {
+            setModal(true)
+            // console.log((subTotal + (subTotal * tax) / 100).toFixed(2));
+          }}
         >
           CHARGE BILL
         </button>
@@ -259,7 +262,7 @@ const Cart = () => {
             <p className="text-2xl font-bold flex justify-between md:w-[65%]">
               Grand Total:{" "}
               <span className="font-semibold">
-                {subTotal + (subTotal * tax) / 100} /-
+                {(subTotal + (subTotal * tax) / 100).toFixed(2)} /-
               </span>
             </p>
           </div>
