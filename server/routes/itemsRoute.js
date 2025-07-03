@@ -175,22 +175,6 @@ router.delete("/:userId/:itemId", async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // now get OneRecord
 router.get("/:id", async (req, res) => {
   try {

@@ -15,6 +15,7 @@ const cors = require("cors");
 // routes
 const itemsRoute = require("./routes/itemsRoute");
 const usersRoute = require("./routes/usersRoute");
+const billsRoute = require("./routes/billsRoute");
 
 // start express app
 const app = express();
@@ -41,5 +42,6 @@ app.use(express.json());
 // items route config
 app.use("/api/v0/items", itemsRoute);
 app.use("/api/v0/users", usersRoute);
+app.use("/api/v0/bills", billsRoute);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

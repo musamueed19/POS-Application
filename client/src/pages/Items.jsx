@@ -75,7 +75,7 @@ const Items = () => {
   const [isPending, setIsPending] = useState(false);
 
   // counter
-  let i = 0;
+  // let i = 0;
 
   // Form related fields
   const [form] = Form.useForm(); // Add this at the top with your other hooks

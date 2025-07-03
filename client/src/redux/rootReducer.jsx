@@ -27,6 +27,11 @@ export const rootReducer = (state = initialState, action) => {
           (item) => item["_id"] !== action.payload
         ),
       };
+   
+    case 'removeAllItems': return {
+      ...state,
+      cartItems: []
+   }
     case "login":
       {
         console.log(state.user, action.payload)
