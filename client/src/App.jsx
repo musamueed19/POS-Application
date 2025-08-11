@@ -9,6 +9,8 @@ import Bills from "./pages/Bills";
 import Customers from "./pages/Customers";
 import Cart from "./pages/Cart";
 import Register from "./pages/Register";
+import PrintTestComponent from "./pages/ReactToPrint";
+import Test from "./pages/Test";
 
 // components
 import Header from "./components/Header";
@@ -64,8 +66,31 @@ function App() {
                 </ProtectedRoutes>
               }
             />
-            <Route path="/cart" element={<Cart />} />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoutes>
+                  <Cart />
+                </ProtectedRoutes>
+              }
+            />
           </Route>
+              <Route
+                path="/test"
+                element={
+                  <ProtectedRoutes>
+                    <PrintTestComponent />
+                  </ProtectedRoutes>
+                }
+              />
+              <Route
+                path="/test1"
+                element={
+                  <ProtectedRoutes>
+                    <Test />
+                  </ProtectedRoutes>
+                }
+              />
 
           {/* Routes without DefaultLayout */}
           <Route path="/" element={<Login />} />

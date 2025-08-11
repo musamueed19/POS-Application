@@ -121,7 +121,7 @@ const Bills = () => {
           render={(updatedAt) => {
             const date = dateFormatter(updatedAt);
 
-            return <span className="uppercase">{date}</span>;
+            return <span className="">{date}</span>;
           }}
         />
 
@@ -154,7 +154,7 @@ const Bills = () => {
         width={"100%"}
       >
         {/* conatiner */}
-        <div className="my-4 mx-auto md:w-[95%] px-2" ref={componentRef}>
+        <div className="my-4 mx-auto md:w-[95%] px-2 relative" ref={componentRef}>
           {/* header */}
           <div className="flex justify-between items-center border-b border-dashed pb-4">
             <h2 className="text-xl lg:text-2xl font-bold">
@@ -276,8 +276,9 @@ const Bills = () => {
           <div className="flex justify-end my-2">
             <button
               onClick={() => {
-                console.log(componentRef.current)
-                handlePrint()
+                // console.log(componentRef.current)
+                // handlePrint()
+                print()
               }}
               className="w-fit px-4 py-1 rounded-md bg-blue-600/90 hover:bg-blue-600 cursor-pointer text-white font-medium"
             >
