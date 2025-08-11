@@ -47,7 +47,9 @@ const Bills = () => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/v0/bills`)
       .then((res) => {
-        setData(res?.data?.message);
+        const data = res?.data?.message;
+        data?.reverse();
+        setData(data);
         setError("");
       })
       .catch((err) => {
